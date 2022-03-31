@@ -3,11 +3,8 @@
 <p align="center">
     <img alt="logo" title="Logo" src="https://github.com/Exxuslee/btcPuzzleMatrix/blob/master/btcPuzzleMatrix.png">
 </p>
-<p>
-   <a href="">
-    <img alt="GitHub" src="https://img.shields.io/github/license/exxuslee/btcPuzzleMatrix">
-  </a>
-</p>
+![GitHub](https://img.shields.io/github/license/exxuslee/btcPuzzleMatrix)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/Exxuslee/btcPuzzleMatrix)
 
 **Визуализация скрипта поиска пазла биткоина №64**
 
