@@ -3,6 +3,7 @@
 <p align="center">
     <img alt="logo" title="Logo" src="https://github.com/Exxuslee/btcPuzzleMatrix/blob/master/btcPuzzleMatrix.png">
 </p>
+
 ![GitHub](https://img.shields.io/github/license/exxuslee/btcPuzzleMatrix)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/Exxuslee/btcPuzzleMatrix)
 
