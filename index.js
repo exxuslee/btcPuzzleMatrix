@@ -2,7 +2,9 @@ const secp256k1 = require("./secp256k1.js");
 const crypto = require('crypto');
 const fs = require('fs');
 
-const target_hash160 = '2f396b29b27324300d0c59b17c3abc1835bd3dbb';
+//F7051F27B09112D4 | 16jY7qLJnxb7CHZyqBP8qca9d51gAjyXQN  | 64
+//const target_hash160 = '2f396b29b27324300d0c59b17c3abc1835bd3dbb'; //?
+const target_hash160 = '3ee4133d991f52fdf6a25c9834e0745ac74248a4'; //64
 
 let i,j;
 
@@ -11,17 +13,14 @@ function time(){
     return x.toString();
 }
 
-function save(data, i) {
-    fs.writeFile(data.privk+i+'.txt', JSON.stringify(data.privk), function (err) {
+async function save(data, i) {
+    await fs.writeFile(data.privk+i.toString(16)+'.txt', JSON.stringify(data.privk), function (err) {
         if (err) return console.log(err);
     });
 }
 
 
 function newTask() {
-    // const low = BigInt('0x8000000000000000');
-    // const hig = BigInt('0xffffffffffffffff');
-    // const all_variable = '140 737 488 355 327';
     // const address = "16jY7qLJnxb7CHZyqBP8qca9d51gAjyXQN";
     // const address2 = '00 3ee4133d991f52fdf6a25c9834e0745ac74248a4 41544743';
 
@@ -30,8 +29,8 @@ function newTask() {
     token += abc[Math.floor(Math.random() * 8)];
     for (let i = 49; i < 58; i++) token += abc[Math.floor(Math.random() * abc.length)];
     token += '000000';
-    return token; //Will return a 32 bit "hash"
-
+//    return token; //Will return a 32 bit "hash"
+    return '000000000000000000000000000000000000000000000000F7051F27B0911000'
 }
 
 let msg = {};
@@ -74,15 +73,7 @@ function convert(input) {
 }
 
 let pubk = secp256k1.getPublicKey(msg.privk, false);
-//console.log('pubk\t\t'+pubk);
-let pointX = '';
-let pointY = '';
-let pubk_comrress ='';
-
-if (parseInt(pubk.substr(128),16) % 2) pubk_comrress = '03'+ pubk.substr(2, 64);
-else pubk_comrress = '02'+ pubk.substr(2, 64);
-//console.log('pubk_comrress\t\t'+pubk_comrress);
-
+let pubk_comrress = toCompress(pubk);
 for (i=0; i < 16777216; i++){
 //    console.log('pubk\t\t\t\t'+pubk);
     let sha = crypto.createHash('sha256').update(Buffer.from(pubk_comrress, 'hex')).digest('hex');
@@ -93,29 +84,28 @@ for (i=0; i < 16777216; i++){
     terminal_cursor2(convert(hash160));
 
     if (hash160 === target_hash160) {
-//        console.log("Worker found! %s", hash160);
+        console.log("Worker found! %s", msg.privk, i.toString(16));
         save(msg,i);
     }
-    pointX = '0x'+pubk.substr(2, 64);
-    pointY = '0x'+pubk.substr(66);
+    let pointX = '0x' + pubk.slice(2, 66);
+    let pointY = '0x' + pubk.slice(66);
     let point = new secp256k1.Point(BigInt(pointX),BigInt(pointY));
     point = point.add(secp256k1.Point.BASE);
-//        console.log('pointX\t\t\t\t'+point.x.toString(16));
-//        console.log('pointY\t\t\t\t'+point.y.toString(16));
-    let newX ='';
-    let newY ='';
-    for (j=point.x.toString(16).length; j<64;j++) newX += '0';
-    for (j=point.y.toString(16).length; j<64;j++) newY += '0';
-    newX += point.x.toString(16);
-    newY += point.y.toString(16);
-    pubk = '04'+ newX + newY;
-//        console.log('pubk\t\t\t\t'+pubk);
-    if (parseInt(pubk.substr(128),16) % 2) pubk_comrress = '03'+ pubk.substr(2, 64);
-    else pubk_comrress = '02'+ pubk.substr(2, 64);
-//        console.log('pubk_comrress\t\t'+pubk_comrress);
+    // console.log('pointX\t\t\t\t'+point.x.toString(16));
+    // console.log('pointY\t\t\t\t'+point.y.toString(16));
+    let newX = point.x.toString(16).padStart(64, '0');
+    let newY = point.y.toString(16).padStart(64, '0');
+    pubk = '04' + newX + newY;
+    // console.log('pubk\t\t\t\t'+pubk);
+    pubk_comrress = toCompress(pubk);
+    // console.log('pubk_comrress\t\t'+pubk_comrress);
 
 }
 console.log('Need new task');
+
+function toCompress(pubKey) {
+    return (parseInt(pubKey.slice(128), 16) % 2) ? '03' + pubKey.slice(2, 66) : '02' + pubKey.slice(2, 66);
+}
 
 
 
